@@ -1,0 +1,31 @@
+Backend: copy server/.env.example to server/.env, set DATABASE_URL and JWT_SECRET.
+Run server/schema_additions.sql in pgAdmin (database postgres). Then:
+  cd server && npm install && npm run seed && npm run dev
+
+Frontend (when your Vite app is in this repo):
+1) Proxy: add to vite.config.ts server.proxy: { "/api": "http://localhost:3001" }
+   Or set VITE_API_URL=http://localhost:3001 in .env (then api.ts must use full URL for fetch).
+
+2) AuthModal.tsx — replace localStorage user arrays with API:
+   import { api } from "../../lib/api";
+   Make handleSubmit async.
+   Signup: const { token } = await api.signup(...); api.setToken(token); onLogin(username); ...
+   Login: const { token } = await api.login(...); api.setToken(token); onLogin(username); ...
+   Remove rentify_users / rentify_transactions localStorage writes on signup.
+
+3) App.tsx — on mount: if (api.getToken() && localStorage.edurent_current_user) setCurrentUser(...)
+   Add useEffect to load listings: const list = await api.getRentalObjects(); if (list.length) setRentalObjects(list as RentalObject[]);
+   handleLogin: keep localStorage.setItem("edurent_current_user", username) and api.setToken already set in modal.
+   handleLogout: api.setToken(null); removeItem edurent_current_user;
+   handleAddObject: await api.saveRentalObject(newObject); then prepend to state (or set from response).
+   handleBookingComplete: after modal books via API, either refetch api.getRentalObjects() or update object to available: false locally.
+   handleReturnDeposit: await api.returnDeposit(depositId); then refetch api.getRentalObjects() to refresh availability.
+
+4) ObjectDetailModal.tsx — in handleBooking: await api.createBooking({ objectId: object.id, objectName: object.name, amount: finalAmount, duration, startDate: bookingDate, endDate: returnDate, depositAmount: object.depositAmount, includesDeposit: includeDeposit, pricePerDay: object.pricePerDay }); then onBookingComplete(object.id); remove localStorage transaction/deposit writes.
+
+5) UserDashboard.tsx — use useState for transactions/deposits; useEffect when open: const d = await api.getDashboard(); setTransactions(d.transactions as Transaction[]); setDeposits(d.deposits as DepositRecord[]);
+   On return deposit: await api.returnDeposit(id); refresh dashboard from api.getDashboard(). Remove localStorage reads.
+
+6) DamageReportModal.tsx — replace localStorage with await api.submitDamageReport({ objectName, damageDescription, estimatedCost: parseFloat(...), photoUrl: photoPreview ?? undefined });
+
+Important: user_orders must allow duplicate username/email on ORDER rows. Use partial unique indexes on (username) and (email) WHERE order_id IS NULL only — not a global UNIQUE(email) on the whole table.
