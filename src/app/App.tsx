@@ -245,7 +245,7 @@ const initialRentalObjects: RentalObject[] = [
     owner: {
       name: "Kiran Desai",
       phone: "+91 54567 89012",
-      address: "890 Bandra West, Mumbai, Maharashtra 400050",
+      address: "870 Bandra West, Mumbai, Maharashtra 400050",
       coordinates: { lat: 19.0596, lng: 72.8295 },
     },
     available: true,
