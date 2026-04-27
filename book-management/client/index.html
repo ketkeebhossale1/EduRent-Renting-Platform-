@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Management</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <span class="brand">BookShelf</span>
+    <div id="nav-auth">
+      <button onclick="showView('login')">Login</button>
+      <button onclick="showView('signup')">Sign Up</button>
+    </div>
+    <div id="nav-user" class="hidden">
+      <span id="nav-email"></span>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <!-- ALERT BANNER -->
+  <div id="alert" class="hidden"></div>
+
+  <!-- VIEWS -->
+  <main>
+
+    <!-- SIGNUP -->
+    <section id="view-signup" class="view hidden card">
+      <h2>Create Account</h2>
+      <form id="form-signup" onsubmit="handleSignup(event)" novalidate>
+        <label>Email <span class="req">*</span></label>
+        <input type="email" id="signup-email" placeholder="you@example.com" required autocomplete="email" />
+        <div id="email-error" class="field-error hidden"></div>
+
+        <label>Password <span class="req">*</span></label>
+        <input type="password" id="signup-password" placeholder="Create a strong password" required autocomplete="new-password" oninput="checkPasswordStrength(this.value)" />
+
+        <div class="strength-box" id="strength-box">
+          <p class="strength-title">Password must include:</p>
+          <ul class="strength-list">
+            <li id="req-len"  class="req-item">&#x25CB; At least 8 characters</li>
+            <li id="req-upper" class="req-item">&#x25CB; Uppercase letter (A–Z)</li>
+            <li id="req-lower" class="req-item">&#x25CB; Lowercase letter (a–z)</li>
+            <li id="req-digit" class="req-item">&#x25CB; Number (0–9)</li>
+            <li id="req-special" class="req-item">&#x25CB; Special character (!@#$…)</li>
+          </ul>
+        </div>
+
+        <label>Confirm Password <span class="req">*</span></label>
+        <input type="password" id="signup-confirm" placeholder="Repeat your password" required autocomplete="new-password" />
+        <div id="confirm-error" class="field-error hidden"></div>
+
+        <button type="submit">Sign Up</button>
+      </form>
+      <p class="switch">Already have an account? <a onclick="showView('login')">Login</a></p>
+    </section>
+
+    <!-- LOGIN -->
+    <section id="view-login" class="view hidden card">
+      <h2>Login</h2>
+      <form id="form-login" onsubmit="handleLogin(event)">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com" required />
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="Your password" required />
+        <button type="submit">Login</button>
+      </form>
+      <p class="switch">No account? <a onclick="showView('signup')">Sign Up</a></p>
+    </section>
+
+    <!-- BOOKS DASHBOARD -->
+    <section id="view-books" class="view hidden">
+
+      <!-- Add Book -->
+      <div class="card" id="add-book-card">
+        <h2>Add a Book</h2>
+        <form id="form-book" onsubmit="handleAddBook(event)" novalidate>
+          <div class="form-row">
+            <div>
+              <label>Title <span class="req">*</span></label>
+              <input type="text" id="book-title" placeholder="Book title" required />
+              <div id="title-error" class="field-error hidden"></div>
+            </div>
+            <div>
+              <label>Author <span class="req">*</span></label>
+              <input type="text" id="book-author" placeholder="Full author name" required />
+              <div id="author-error" class="field-error hidden"></div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label>Genre <span class="req">*</span></label>
+              <select id="book-genre" required>
+                <option value="">— Select a genre —</option>
+                <option>Fiction</option>
+                <option>Non-Fiction</option>
+                <option>Science</option>
+                <option>Technology</option>
+                <option>History</option>
+                <option>Biography</option>
+                <option>Mystery</option>
+                <option>Fantasy</option>
+                <option>Romance</option>
+                <option>Self-Help</option>
+                <option>Philosophy</option>
+                <option>Psychology</option>
+                <option>Economics</option>
+                <option>Politics</option>
+                <option>Art</option>
+                <option>Other</option>
+              </select>
+              <div id="genre-error" class="field-error hidden"></div>
+            </div>
+          </div>
+          <label>Description <span class="req">*</span></label>
+          <p class="hint">Provide a meaningful summary of the book (at least 20 characters).</p>
+          <textarea id="book-description" placeholder="A short description of the book..." rows="4" required></textarea>
+          <div id="desc-error" class="field-error hidden"></div>
+          <button type="submit">Add Book</button>
+        </form>
+      </div>
+
+      <!-- Filter + List -->
+      <div class="card">
+        <div class="filter-bar">
+          <h2>Book Library</h2>
+          <div class="filters">
+            <input type="text" id="filter-author" placeholder="Filter by author" />
+            <select id="filter-genre">
+              <option value="">All genres</option>
+              <option>Fiction</option>
+              <option>Non-Fiction</option>
+              <option>Science</option>
+              <option>Technology</option>
+              <option>History</option>
+              <option>Biography</option>
+              <option>Mystery</option>
+              <option>Fantasy</option>
+              <option>Romance</option>
+              <option>Self-Help</option>
+              <option>Philosophy</option>
+              <option>Psychology</option>
+              <option>Economics</option>
+              <option>Politics</option>
+              <option>Art</option>
+              <option>Other</option>
+            </select>
+            <button onclick="loadBooks()">Search</button>
+            <button class="secondary" onclick="clearFilters()">Clear</button>
+          </div>
+        </div>
+        <div id="books-count" class="books-count"></div>
+        <div id="books-list"></div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

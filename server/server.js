@@ -9,11 +9,26 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || "dev-insecure-secret";
 
+// Auto-migrate: add new columns if they don't exist
+async function runMigrations() {
+  const migrations = [
+    `ALTER TABLE rental_objects ADD COLUMN IF NOT EXISTS author    TEXT`,
+    `ALTER TABLE rental_objects ADD COLUMN IF NOT EXISTS genre     TEXT`,
+    `ALTER TABLE rental_objects ADD COLUMN IF NOT EXISTS publisher TEXT`,
+    `ALTER TABLE rental_objects ADD COLUMN IF NOT EXISTS isbn      TEXT`,
+    `ALTER TABLE rental_objects ADD COLUMN IF NOT EXISTS qr_url    TEXT`,
+  ];
+  for (const sql of migrations) {
+    try { await query(sql); } catch (e) { console.warn("Migration skipped:", e.message); }
+  }
+  console.log("Migrations complete.");
+}
+
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "12mb" }));
 
 function rowToRentalObject(row) {
-  return {
+  const obj = {
     id: row.id,
     name: row.name,
     category: row.category,
@@ -31,6 +46,12 @@ function rowToRentalObject(row) {
     depositAmount: Number(row.deposit_amount),
     rating: Number(row.rating),
   };
+  if (row.author)    obj.author    = row.author;
+  if (row.genre)     obj.genre     = row.genre;
+  if (row.publisher) obj.publisher = row.publisher;
+  if (row.isbn)      obj.isbn      = row.isbn;
+  if (row.qr_url)    obj.qrUrl     = row.qr_url;
+  return obj;
 }
 
 function rowToTransaction(row) {
@@ -183,8 +204,9 @@ app.post("/api/rental-objects", authMiddleware, async (req, res) => {
       `INSERT INTO rental_objects (
         id, name, category, price_per_day, image_url, condition, description,
         owner_name, owner_phone, owner_address, owner_lat, owner_lng,
-        available, deposit_amount, rating
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+        available, deposit_amount, rating,
+        author, genre, publisher, isbn, qr_url
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
       ON CONFLICT (id) DO UPDATE SET
         name = EXCLUDED.name,
         category = EXCLUDED.category,
@@ -199,7 +221,12 @@ app.post("/api/rental-objects", authMiddleware, async (req, res) => {
         owner_lng = EXCLUDED.owner_lng,
         available = EXCLUDED.available,
         deposit_amount = EXCLUDED.deposit_amount,
-        rating = EXCLUDED.rating`,
+        rating = EXCLUDED.rating,
+        author = EXCLUDED.author,
+        genre = EXCLUDED.genre,
+        publisher = EXCLUDED.publisher,
+        isbn = EXCLUDED.isbn,
+        qr_url = EXCLUDED.qr_url`,
       [
         id,
         o.name,
@@ -216,6 +243,11 @@ app.post("/api/rental-objects", authMiddleware, async (req, res) => {
         o.available !== false,
         o.depositAmount ?? 0,
         o.rating ?? 0,
+        o.author ?? null,
+        o.genre ?? null,
+        o.publisher ?? null,
+        o.isbn ?? null,
+        o.qrUrl ?? null,
       ]
     );
     const { rows } = await query(`SELECT * FROM rental_objects WHERE id = $1`, [
@@ -480,6 +512,7 @@ app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`API listening on http://localhost:${PORT}`);
+  await runMigrations();
 });

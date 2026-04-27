@@ -47,3 +47,10 @@ CREATE TABLE IF NOT EXISTS damage_reports (
 );
 
 CREATE INDEX IF NOT EXISTS idx_damage_reports_username ON damage_reports (username);
+
+-- Migration: add book-specific and QR fields to rental_objects
+ALTER TABLE rental_objects ADD COLUMN IF NOT EXISTS author      TEXT;
+ALTER TABLE rental_objects ADD COLUMN IF NOT EXISTS genre       TEXT;
+ALTER TABLE rental_objects ADD COLUMN IF NOT EXISTS publisher   TEXT;
+ALTER TABLE rental_objects ADD COLUMN IF NOT EXISTS isbn        TEXT;
+ALTER TABLE rental_objects ADD COLUMN IF NOT EXISTS qr_url      TEXT;

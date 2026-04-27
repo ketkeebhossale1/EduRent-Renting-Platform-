@@ -22,7 +22,7 @@ export function AIChatWidget({ isOpen, onClose }: AIChatWidgetProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      text: "Hello! I'm Rentify AI Assistant. How can I help you today? 😊",
+      text: "Hello! I'm EduRent AI Assistant. How can I help you today? 😊",
       sender: "bot",
       timestamp: new Date(),
     },
@@ -44,7 +44,7 @@ export function AIChatWidget({ isOpen, onClose }: AIChatWidgetProps) {
     } else if (lowerMessage.includes("payment") || lowerMessage.includes("pay")) {
       return "We accept payments via UPI. Simply scan the QR code shown in the object details page with any UPI app (Google Pay, PhonePe, Paytm, etc.). Payment is secure and instant! 💳";
     } else if (lowerMessage.includes("cancel") || lowerMessage.includes("refund")) {
-      return "You can cancel your booking 24 hours before pickup with no charges. Within 24 hours, a 50% cancellation fee applies. Refunds are processed in 5-7 business days. 📅";
+      return "You can cancel your booking 24 hours before pickup with no charges. Within 24 hours, a 30% cancellation fee applies. Refunds are processed in 5-7 business days. 📅";
     } else if (lowerMessage.includes("add") || lowerMessage.includes("owner")) {
       return "To list your object: 1) Click the '+ Add Object' button in the header 2) Fill in object details and your contact info 3) Set your rental price 4) Submit! Your listing will be live immediately. 📦";
     } else if (lowerMessage.includes("rules") || lowerMessage.includes("regulation")) {

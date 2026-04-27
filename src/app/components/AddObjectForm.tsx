@@ -17,7 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, QrCode, X } from "lucide-react";
+import { useRef } from "react";
 import { toast } from "sonner";
 
 interface AddObjectFormProps {
@@ -29,7 +30,7 @@ interface AddObjectFormProps {
 export function AddObjectForm({ isOpen, onClose, onAdd }: AddObjectFormProps) {
   const [formData, setFormData] = useState({
     name: "",
-    category: "appliance",
+    category: "books",
     pricePerDay: "",
     condition: "good",
     description: "",
@@ -40,12 +41,44 @@ export function AddObjectForm({ isOpen, onClose, onAdd }: AddObjectFormProps) {
     longitude: "",
     imageUrl: "",
     depositAmount: "",
+    author: "",
+    genre: "",
+    publisher: "",
+    isbn: "",
   });
+  const [qrPreview, setQrPreview] = useState<string>("");
+  const qrInputRef = useRef<HTMLInputElement>(null);
+
+  const handleQrUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setQrPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const newObject = {
+
+    // Validate QR code upload
+    if (!qrPreview) {
+      toast.error("Payment QR code is required! Please upload your UPI QR code.");
+      return;
+    }
+
+    // Validate book-specific fields
+    if (formData.category === "books") {
+      if (!formData.author || !formData.genre || !formData.publisher) {
+        toast.error("For books, Author, Genre, and Publisher are mandatory fields!");
+        return;
+      }
+      if (!formData.description) {
+        toast.error("Book description is required!");
+        return;
+      }
+    }
+
+    const newObject: any = {
       id: Date.now().toString(),
       name: formData.name,
       category: formData.category as any,
@@ -63,17 +96,27 @@ export function AddObjectForm({ isOpen, onClose, onAdd }: AddObjectFormProps) {
         },
       },
       available: true,
-      depositAmount: parseInt(formData.depositAmount) || 500,
+      depositAmount: parseInt(formData.depositAmount) || 100,
+      rating: 4.5,
+      qrUrl: qrPreview,
     };
 
+    // Add book-specific fields
+    if (formData.category === "books") {
+      newObject.author = formData.author;
+      newObject.genre = formData.genre;
+      newObject.publisher = formData.publisher;
+      if (formData.isbn) {
+        newObject.isbn = formData.isbn;
+      }
+    }
+
     onAdd(newObject);
-    toast.success("Object added successfully!");
-    onClose();
-    
+
     // Reset form
     setFormData({
       name: "",
-      category: "appliance",
+      category: "books",
       pricePerDay: "",
       condition: "good",
       description: "",
@@ -84,7 +127,12 @@ export function AddObjectForm({ isOpen, onClose, onAdd }: AddObjectFormProps) {
       longitude: "",
       imageUrl: "",
       depositAmount: "",
+      author: "",
+      genre: "",
+      publisher: "",
+      isbn: "",
     });
+    setQrPreview("");
   };
 
   return (
@@ -92,26 +140,26 @@ export function AddObjectForm({ isOpen, onClose, onAdd }: AddObjectFormProps) {
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Add New Rental Object
+            Add New Educational Item
           </DialogTitle>
           <DialogDescription>
-            Fill in the details below to list your object for rent. All fields marked with * are required.
+            List your educational item for rent. For books, author, genre, and publisher are mandatory. All fields marked with * are required.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Object Details */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Object Details</h3>
-            
+            <h3 className="font-semibold text-lg">Item Details</h3>
+
             <div>
-              <Label htmlFor="name">Object Name *</Label>
+              <Label htmlFor="name">Item Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
-                placeholder="e.g., Samsung Washing Machine"
+                placeholder="e.g., NCERT Physics Textbook Class 12"
               />
             </div>
 
@@ -126,11 +174,11 @@ export function AddObjectForm({ isOpen, onClose, onAdd }: AddObjectFormProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="appliance">Appliance</SelectItem>
-                    <SelectItem value="tool">Tool</SelectItem>
+                    <SelectItem value="books">Books</SelectItem>
+                    <SelectItem value="equipment">Equipment</SelectItem>
                     <SelectItem value="electronics">Electronics</SelectItem>
-                    <SelectItem value="furniture">Furniture</SelectItem>
-                    <SelectItem value="garden">Garden</SelectItem>
+                    <SelectItem value="study-aids">Study Aids</SelectItem>
+                    <SelectItem value="lab-equipment">Lab Equipment</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -161,7 +209,7 @@ export function AddObjectForm({ isOpen, onClose, onAdd }: AddObjectFormProps) {
                 value={formData.pricePerDay}
                 onChange={(e) => setFormData({ ...formData, pricePerDay: e.target.value })}
                 required
-                placeholder="150"
+                placeholder="15"
               />
             </div>
 
@@ -172,10 +220,68 @@ export function AddObjectForm({ isOpen, onClose, onAdd }: AddObjectFormProps) {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 required
-                placeholder="Describe the object, its features, and condition..."
+                placeholder="Describe the educational item, its features, edition, and condition..."
                 rows={3}
               />
             </div>
+
+            {formData.category === "books" && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="author">Author *</Label>
+                    <Input
+                      id="author"
+                      value={formData.author}
+                      onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                      required
+                      placeholder="e.g., J.K. Rowling"
+                      className="bg-yellow-50 border-yellow-300"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="genre">Genre *</Label>
+                    <Input
+                      id="genre"
+                      value={formData.genre}
+                      onChange={(e) => setFormData({ ...formData, genre: e.target.value })}
+                      required
+                      placeholder="e.g., Science, Fiction, Academic"
+                      className="bg-yellow-50 border-yellow-300"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="publisher">Publisher *</Label>
+                    <Input
+                      id="publisher"
+                      value={formData.publisher}
+                      onChange={(e) => setFormData({ ...formData, publisher: e.target.value })}
+                      required
+                      placeholder="e.g., NCERT, Penguin Books"
+                      className="bg-yellow-50 border-yellow-300"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="isbn">ISBN (Optional)</Label>
+                    <Input
+                      id="isbn"
+                      value={formData.isbn}
+                      onChange={(e) => setFormData({ ...formData, isbn: e.target.value })}
+                      placeholder="e.g., 978-3-16-148410-0"
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                  <p className="text-sm text-purple-800">
+                    📚 <strong>Book Listing:</strong> Author, Genre, and Publisher are mandatory fields for book listings. Make sure to provide accurate information.
+                  </p>
+                </div>
+              </>
+            )}
 
             <div>
               <Label htmlFor="imageUrl">Image URL</Label>
@@ -195,10 +301,10 @@ export function AddObjectForm({ isOpen, onClose, onAdd }: AddObjectFormProps) {
                 value={formData.depositAmount}
                 onChange={(e) => setFormData({ ...formData, depositAmount: e.target.value })}
                 required
-                placeholder="500"
+                placeholder="100"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Refundable security deposit. Suggested: ₹300-500 (low value), ₹500-1000 (medium), ₹1000+ (high value items)
+                Refundable security deposit. Suggested: ₹50-150 (books), ₹150-300 (equipment), ₹300+ (electronics)
               </p>
             </div>
           </div>
@@ -263,6 +369,52 @@ export function AddObjectForm({ isOpen, onClose, onAdd }: AddObjectFormProps) {
             </div>
           </div>
 
+          {/* Payment QR Code */}
+          <div className="space-y-3 pt-4 border-t">
+            <h3 className="font-semibold text-lg flex items-center gap-2">
+              <QrCode className="size-5 text-purple-600" />
+              Payment QR Code <span className="text-red-500">*</span>
+            </h3>
+            <p className="text-sm text-gray-500">
+              Upload your UPI payment QR code. Renters will scan this to pay you directly.
+            </p>
+
+            {qrPreview ? (
+              <div className="relative inline-block">
+                <img
+                  src={qrPreview}
+                  alt="Payment QR preview"
+                  className="w-40 h-40 object-contain border-2 border-purple-300 rounded-xl bg-white p-2"
+                />
+                <button
+                  type="button"
+                  onClick={() => { setQrPreview(""); if (qrInputRef.current) qrInputRef.current.value = ""; }}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600"
+                >
+                  <X className="size-3.5" />
+                </button>
+                <p className="text-xs text-green-600 mt-1 font-medium">✅ QR code uploaded</p>
+              </div>
+            ) : (
+              <div
+                onClick={() => qrInputRef.current?.click()}
+                className="border-2 border-dashed border-purple-300 rounded-xl p-6 flex flex-col items-center gap-2 cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors"
+              >
+                <Upload className="size-8 text-purple-400" />
+                <p className="text-sm font-medium text-purple-700">Click to upload QR code</p>
+                <p className="text-xs text-gray-400">PNG, JPG supported</p>
+              </div>
+            )}
+
+            <input
+              ref={qrInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleQrUpload}
+            />
+          </div>
+
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
             <Button
@@ -278,7 +430,7 @@ export function AddObjectForm({ isOpen, onClose, onAdd }: AddObjectFormProps) {
               className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
             >
               <Plus className="size-4 mr-2" />
-              Add Object
+              Add Item
             </Button>
           </div>
         </form>

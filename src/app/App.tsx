@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { api } from "../lib/api";
 import { ObjectCard, RentalObject } from "./components/ObjectCard";
 import { ObjectFilters, ObjectFilterState } from "./components/ObjectFilters";
 import { ObjectDetailModal } from "./components/ObjectDetailModal";
@@ -9,23 +10,27 @@ import { RentifyLogo } from "./components/RentifyLogo";
 import { AuthModal } from "./components/AuthModal";
 import { UserDashboard } from "./components/UserDashboard";
 import { DamageReportModal } from "./components/DamageReportModal";
-import { Search, Plus, MessageCircle, FileText, User, LogOut, AlertTriangle } from "lucide-react";
+import { SubscriptionPlans } from "./components/SubscriptionPlans";
+import { Search, Plus, MessageCircle, FileText, User, LogOut, AlertTriangle, Crown } from "lucide-react";
 import { Input } from "./components/ui/input";
 import { Button } from "./components/ui/button";
 import { motion } from "motion/react";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner";
-import { api } from "../lib/api";
 
 const initialRentalObjects: RentalObject[] = [
   {
     id: "1",
-    name: "NCERT Physics Textbook Class 12",
+    name: "Concepts of Physics Vol 1",
     category: "books",
-    pricePerDay: 15,
+    pricePerDay: 18,
     image: "https://images.unsplash.com/photo-1589998059171-988d887df646?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
     condition: "excellent",
-    description: "Latest edition NCERT Physics textbook for Class 12 with solved examples and practice questions.",
+    description: "Comprehensive physics guide by H.C. Verma covering mechanics, thermodynamics, and waves with detailed problem-solving techniques.",
+    author: "H.C. Verma",
+    genre: "Academic - Physics",
+    publisher: "Bharati Bhawan Publishers",
+    isbn: "978-8177091878",
     owner: {
       name: "Rajesh Kumar",
       phone: "+91 98765 43210",
@@ -33,8 +38,8 @@ const initialRentalObjects: RentalObject[] = [
       coordinates: { lat: 12.9716, lng: 77.5946 },
     },
     available: true,
-    depositAmount: 100,
-    rating: 4.8,
+    depositAmount: 120,
+    rating: 4.9,
   },
   {
     id: "2",
@@ -146,12 +151,16 @@ const initialRentalObjects: RentalObject[] = [
   },
   {
     id: "8",
-    name: "Reference Book: Organic Chemistry",
+    name: "Organic Chemistry",
     category: "books",
-    pricePerDay: 18,
+    pricePerDay: 20,
     image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
     condition: "excellent",
-    description: "Morrison & Boyd Organic Chemistry reference book with detailed explanations and practice problems.",
+    description: "Morrison & Boyd's comprehensive Organic Chemistry textbook with detailed mechanisms, reactions, and practice problems.",
+    author: "Robert Thornton Morrison & Robert Neilson Boyd",
+    genre: "Academic - Chemistry",
+    publisher: "Pearson Education",
+    isbn: "978-0136436690",
     owner: {
       name: "Arjun Nair",
       phone: "+91 21098 76543",
@@ -159,7 +168,7 @@ const initialRentalObjects: RentalObject[] = [
       coordinates: { lat: 9.9312, lng: 76.2673 },
     },
     available: true,
-    depositAmount: 120,
+    depositAmount: 140,
     rating: 4.9,
   },
   {
@@ -182,12 +191,16 @@ const initialRentalObjects: RentalObject[] = [
   },
   {
     id: "10",
-    name: "Engineering Graphics Book with Instruments",
+    name: "Engineering Graphics",
     category: "books",
-    pricePerDay: 25,
+    pricePerDay: 16,
     image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
     condition: "excellent",
-    description: "Complete engineering drawing book with drafting instruments and templates. Includes practice sheets.",
+    description: "Comprehensive engineering drawing textbook covering orthographic projections, isometric views, and sectional drawings with detailed examples.",
+    author: "N.D. Bhatt",
+    genre: "Academic - Engineering",
+    publisher: "Charotar Publishing House",
+    isbn: "978-9380358208",
     owner: {
       name: "Neha Kapoor",
       phone: "+91 87234 56789",
@@ -195,7 +208,7 @@ const initialRentalObjects: RentalObject[] = [
       coordinates: { lat: 12.9352, lng: 77.6245 },
     },
     available: true,
-    depositAmount: 150,
+    depositAmount: 110,
     rating: 4.7,
   },
   {
@@ -245,7 +258,7 @@ const initialRentalObjects: RentalObject[] = [
     owner: {
       name: "Kiran Desai",
       phone: "+91 54567 89012",
-      address: "870 Bandra West, Mumbai, Maharashtra 400050",
+      address: "890 Bandra West, Mumbai, Maharashtra 400050",
       coordinates: { lat: 19.0596, lng: 72.8295 },
     },
     available: true,
@@ -254,12 +267,16 @@ const initialRentalObjects: RentalObject[] = [
   },
   {
     id: "14",
-    name: "IELTS Preparation Books Set",
+    name: "Cambridge IELTS 17 Academic",
     category: "books",
-    pricePerDay: 22,
+    pricePerDay: 15,
     image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
     condition: "excellent",
-    description: "Complete IELTS preparation set with practice tests, answer keys, and audio CD for listening practice.",
+    description: "Authentic IELTS practice tests with answer keys and comprehensive listening audio materials for exam preparation.",
+    author: "Cambridge Assessment",
+    genre: "Test Preparation - English",
+    publisher: "Cambridge University Press",
+    isbn: "978-1316637593",
     owner: {
       name: "Alok Sharma",
       phone: "+91 43678 90123",
@@ -267,8 +284,8 @@ const initialRentalObjects: RentalObject[] = [
       coordinates: { lat: 12.9698, lng: 77.7499 },
     },
     available: true,
-    depositAmount: 150,
-    rating: 4.7,
+    depositAmount: 100,
+    rating: 4.8,
   },
   {
     id: "15",
@@ -290,12 +307,16 @@ const initialRentalObjects: RentalObject[] = [
   },
   {
     id: "16",
-    name: "Programming Books Bundle (Python, Java)",
+    name: "Introduction to Algorithms",
     category: "books",
-    pricePerDay: 28,
+    pricePerDay: 25,
     image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
     condition: "excellent",
-    description: "Collection of programming books including Python, Java fundamentals, and data structures guides.",
+    description: "The classic CLRS algorithms textbook covering sorting, graph theory, dynamic programming, and computational complexity.",
+    author: "Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, Clifford Stein",
+    genre: "Computer Science - Algorithms",
+    publisher: "MIT Press",
+    isbn: "978-0262033848",
     owner: {
       name: "Rahul Joshi",
       phone: "+91 21890 12345",
@@ -303,8 +324,8 @@ const initialRentalObjects: RentalObject[] = [
       coordinates: { lat: 28.6304, lng: 77.2177 },
     },
     available: true,
-    depositAmount: 180,
-    rating: 4.8,
+    depositAmount: 160,
+    rating: 4.9,
   },
   {
     id: "17",
@@ -398,12 +419,16 @@ const initialRentalObjects: RentalObject[] = [
   },
   {
     id: "22",
-    name: "Medical Anatomy Atlas Book",
+    name: "Gray's Anatomy for Students",
     category: "books",
-    pricePerDay: 24,
+    pricePerDay: 28,
     image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
     condition: "excellent",
-    description: "Detailed human anatomy atlas with colored illustrations. Essential for medical students.",
+    description: "Comprehensive human anatomy textbook with clinical correlations, detailed illustrations, and surface anatomy features.",
+    author: "Richard Drake, Wayne Vogl, Adam W.M. Mitchell",
+    genre: "Medical - Anatomy",
+    publisher: "Elsevier",
+    isbn: "978-0323393041",
     owner: {
       name: "Harish Patel",
       phone: "+91 55456 78901",
@@ -411,8 +436,8 @@ const initialRentalObjects: RentalObject[] = [
       coordinates: { lat: 23.0258, lng: 72.5098 },
     },
     available: true,
-    depositAmount: 160,
-    rating: 4.8,
+    depositAmount: 180,
+    rating: 4.9,
   },
   {
     id: "23",
@@ -470,12 +495,16 @@ const initialRentalObjects: RentalObject[] = [
   },
   {
     id: "26",
-    name: "CAD Software Training Books",
+    name: "Mastering AutoCAD 2024",
     category: "books",
-    pricePerDay: 20,
+    pricePerDay: 22,
     image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
     condition: "good",
-    description: "AutoCAD and SolidWorks training manuals with step-by-step tutorials and exercises.",
+    description: "Complete guide to AutoCAD with step-by-step tutorials, advanced 3D modeling techniques, and real-world project examples.",
+    author: "George Omura & Brian C. Benton",
+    genre: "Technical - CAD/Design",
+    publisher: "Sybex",
+    isbn: "978-1119900344",
     owner: {
       name: "Sameer Khan",
       phone: "+91 11890 12345",
@@ -483,7 +512,7 @@ const initialRentalObjects: RentalObject[] = [
       coordinates: { lat: 28.4777, lng: 77.0884 },
     },
     available: true,
-    depositAmount: 130,
+    depositAmount: 140,
     rating: 4.7,
   },
   {
@@ -558,26 +587,164 @@ const initialRentalObjects: RentalObject[] = [
     depositAmount: 50,
     rating: 4.6,
   },
+  {
+    id: "31",
+    name: "Concepts of Physics Vol 2",
+    category: "books",
+    pricePerDay: 18,
+    image: "https://images.unsplash.com/photo-1589998059171-988d887df646?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+    condition: "excellent",
+    description: "Second volume by H.C. Verma covering electricity, magnetism, optics, and modern physics with extensive problem sets.",
+    author: "H.C. Verma",
+    genre: "Academic - Physics",
+    publisher: "Bharati Bhawan Publishers",
+    isbn: "978-8177092318",
+    owner: {
+      name: "Rajesh Kumar",
+      phone: "+91 98765 43210",
+      address: "123 MG Road, Bangalore, Karnataka 560001",
+      coordinates: { lat: 12.9716, lng: 77.5946 },
+    },
+    available: true,
+    depositAmount: 120,
+    rating: 4.9,
+  },
+  {
+    id: "32",
+    name: "Higher Algebra",
+    category: "books",
+    pricePerDay: 16,
+    image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+    condition: "good",
+    description: "Classic mathematics textbook covering algebraic equations, permutations, combinations, and binomial theorem.",
+    author: "Hall & Knight",
+    genre: "Academic - Mathematics",
+    publisher: "Arihant Publications",
+    isbn: "978-8182836587",
+    owner: {
+      name: "Prof. Sanjay Mishra",
+      phone: "+91 92345 67890",
+      address: "45 University Road, Varanasi, UP 221005",
+      coordinates: { lat: 25.2677, lng: 82.9913 },
+    },
+    available: true,
+    depositAmount: 100,
+    rating: 4.7,
+  },
+  {
+    id: "33",
+    name: "Python Crash Course",
+    category: "books",
+    pricePerDay: 20,
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+    condition: "excellent",
+    description: "Hands-on Python programming guide with practical projects including data visualization, web apps, and game development.",
+    author: "Eric Matthes",
+    genre: "Computer Science - Programming",
+    publisher: "No Starch Press",
+    isbn: "978-1593279288",
+    owner: {
+      name: "Ananya Desai",
+      phone: "+91 81234 56789",
+      address: "678 IT Park, Pune, Maharashtra 411014",
+      coordinates: { lat: 18.5642, lng: 73.7769 },
+    },
+    available: true,
+    depositAmount: 130,
+    rating: 4.8,
+  },
+  {
+    id: "34",
+    name: "Objective Physics for NEET",
+    category: "books",
+    pricePerDay: 17,
+    image: "https://images.unsplash.com/photo-1509228468518-180dd4864904?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+    condition: "excellent",
+    description: "Complete physics preparation guide for NEET with MCQs, previous year questions, and detailed solutions.",
+    author: "D.C. Pandey",
+    genre: "Test Preparation - Medical",
+    publisher: "Arihant Publications",
+    isbn: "978-9325796829",
+    owner: {
+      name: "Dr. Kavita Reddy",
+      phone: "+91 70123 45678",
+      address: "234 Medical College Road, Hyderabad, Telangana 500095",
+      coordinates: { lat: 17.4435, lng: 78.3496 },
+    },
+    available: true,
+    depositAmount: 110,
+    rating: 4.8,
+  },
+  {
+    id: "35",
+    name: "Economic Survey of India 2023-24",
+    category: "books",
+    pricePerDay: 14,
+    image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+    condition: "excellent",
+    description: "Official Economic Survey document with comprehensive analysis of Indian economy, policies, and statistical data.",
+    author: "Ministry of Finance, Government of India",
+    genre: "Economics - Policy",
+    publisher: "Oxford University Press",
+    isbn: "978-0199497461",
+    owner: {
+      name: "Rohan Kapoor",
+      phone: "+91 61234 56789",
+      address: "89 Connaught Place, New Delhi, Delhi 110001",
+      coordinates: { lat: 28.6315, lng: 77.2167 },
+    },
+    available: true,
+    depositAmount: 90,
+    rating: 4.6,
+  },
+  {
+    id: "36",
+    name: "Fundamentals of Electrical Engineering",
+    category: "books",
+    pricePerDay: 19,
+    image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+    condition: "good",
+    description: "Comprehensive guide covering circuits, network theory, electromagnetism, and electrical machines for engineering students.",
+    author: "B.L. Theraja",
+    genre: "Academic - Electrical Engineering",
+    publisher: "S. Chand Publishing",
+    isbn: "978-8121924405",
+    owner: {
+      name: "Vikram Singh",
+      phone: "+91 50123 45678",
+      address: "567 Engineering College, Roorkee, Uttarakhand 247667",
+      coordinates: { lat: 29.8543, lng: 77.8880 },
+    },
+    available: true,
+    depositAmount: 120,
+    rating: 4.7,
+  },
+  {
+    id: "37",
+    name: "A Brief History of Time",
+    category: "books",
+    pricePerDay: 12,
+    image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+    condition: "excellent",
+    description: "Stephen Hawking's iconic book exploring cosmology, black holes, the nature of time, and the universe's fundamental laws.",
+    author: "Stephen Hawking",
+    genre: "Popular Science - Cosmology",
+    publisher: "Bantam Books",
+    isbn: "978-0553380163",
+    owner: {
+      name: "Meera Shah",
+      phone: "+91 41234 56789",
+      address: "123 Science Centre Road, Bangalore, Karnataka 560094",
+      coordinates: { lat: 13.0112, lng: 77.5656 },
+    },
+    available: true,
+    depositAmount: 80,
+    rating: 4.9,
+  },
 ];
 
 export default function App() {
   const [rentalObjects, setRentalObjects] = useState<RentalObject[]>(initialRentalObjects);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const list = await api.getRentalObjects();
-        if (cancelled || !list.length) return;
-        setRentalObjects(list as unknown as RentalObject[]);
-      } catch {
-        /* keep initial in-app catalog if API is down */
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [filters, setFilters] = useState<ObjectFilterState>({
@@ -595,7 +762,22 @@ export default function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserDashboardOpen, setIsUserDashboardOpen] = useState(false);
   const [isDamageReportOpen, setIsDamageReportOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string | null>(() => localStorage.getItem("edurent_current_user"));
+
+  // Load items from DB on startup and merge with hardcoded defaults
+  useEffect(() => {
+    api.getRentalObjects().then((dbItems: any[]) => {
+      if (dbItems.length === 0) return;
+      setRentalObjects((prev) => {
+        const dbIds = new Set(dbItems.map((item: any) => String(item.id)));
+        const hardcodedOnly = prev.filter((item) => !dbIds.has(String(item.id)));
+        return [...(dbItems as unknown as RentalObject[]), ...hardcodedOnly];
+      });
+    }).catch(() => {
+      // Server unavailable — keep hardcoded items
+    });
+  }, []);
 
   const handleLogin = (username: string) => {
     setCurrentUser(username);
@@ -603,7 +785,6 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    api.setToken(null);
     setCurrentUser(null);
     localStorage.removeItem("edurent_current_user");
     toast.success("Logged out successfully!");
@@ -615,43 +796,51 @@ export default function App() {
     );
   };
 
-  const handleReturnDeposit = async (depositId: string, objectName: string) => {
+  const handleReturnDeposit = (depositId: string, objectName: string) => {
     if (!currentUser) return;
 
-    try {
-      const updated = await api.returnDeposit(depositId);
-      const amt = Number((updated as { amount?: number }).amount ?? 0);
-      setRentalObjects((objects) =>
-        objects.map((obj) => (obj.name === objectName ? { ...obj, available: true } : obj))
-      );
-      toast.success(
-        amt ? `₹${amt} deposit refunded! Object returned successfully.` : "Deposit returned successfully."
-      );
-      setIsUserDashboardOpen(false);
-      setTimeout(() => setIsUserDashboardOpen(true), 100);
-      try {
-        const list = await api.getRentalObjects();
-        if (list.length) setRentalObjects(list as unknown as RentalObject[]);
-      } catch {
-        /* ignore */
-      }
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not process return");
-    }
+    const deposits = JSON.parse(localStorage.getItem(`edurent_deposits_${currentUser}`) || "[]");
+    const updatedDeposits = deposits.map((d: any) =>
+      d.id === depositId ? { ...d, status: "returned", returnDate: new Date().toISOString() } : d
+    );
+    localStorage.setItem(`edurent_deposits_${currentUser}`, JSON.stringify(updatedDeposits));
+
+    setRentalObjects((objects) =>
+      objects.map((obj) => (obj.name === objectName ? { ...obj, available: true } : obj))
+    );
+
+    const deposit = deposits.find((d: any) => d.id === depositId);
+    toast.success(`₹${deposit.amount} deposit refunded! Object returned successfully.`);
+    
+    setIsUserDashboardOpen(false);
+    setTimeout(() => setIsUserDashboardOpen(true), 100);
   };
 
   const handleViewDetails = (object: RentalObject) => {
+    if (!currentUser) {
+      toast.error("Please login to view item details and make bookings!");
+      setIsAuthModalOpen(true);
+      return;
+    }
     setSelectedObject(object);
     setIsModalOpen(true);
   };
 
   const handleAddObject = async (newObject: RentalObject) => {
+    // Show item immediately so the user sees it right away
+    setRentalObjects((prev) => [newObject, ...prev]);
+    setIsAddFormOpen(false);
+    toast.success(`${newObject.category === "books" ? "Book" : "Item"} added!`);
+
     try {
-      const saved = await api.saveRentalObject(newObject as import("../lib/api").RentalObjectDTO);
-      setRentalObjects((prev) => [saved as unknown as RentalObject, ...prev]);
-    } catch {
-      setRentalObjects((prev) => [newObject, ...prev]);
-      toast.error("Could not reach server — item shown locally only.");
+      const saved = await api.saveRentalObject(newObject as any);
+      // Replace the optimistic item with the saved version from DB
+      setRentalObjects((prev) =>
+        prev.map((obj) => (obj.id === newObject.id ? (saved as unknown as RentalObject) : obj))
+      );
+    } catch (e: any) {
+      console.error("Save item error:", e);
+      toast.error("Item shown but not saved to database — will disappear on reload. Check if the server is running.");
     }
   };
 
@@ -700,7 +889,28 @@ export default function App() {
 
             <div className="flex items-center gap-3">
               <Button
-                onClick={() => setIsDamageReportOpen(true)}
+                onClick={() => {
+                  if (!currentUser) {
+                    toast.error("Please login to view subscription plans!");
+                    setIsAuthModalOpen(true);
+                    return;
+                  }
+                  setIsSubscriptionOpen(true);
+                }}
+                className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white border-0"
+              >
+                <Crown className="size-4 mr-2" />
+                Subscriptions
+              </Button>
+              <Button
+                onClick={() => {
+                  if (!currentUser) {
+                    toast.error("Please login to report damage!");
+                    setIsAuthModalOpen(true);
+                    return;
+                  }
+                  setIsDamageReportOpen(true);
+                }}
                 variant="outline"
                 className="bg-white/20 border-white/30 text-white hover:bg-white/30 backdrop-blur-sm"
               >
@@ -716,7 +926,14 @@ export default function App() {
                 Rules
               </Button>
               <Button
-                onClick={() => setIsAddFormOpen(true)}
+                onClick={() => {
+                  if (!currentUser) {
+                    toast.error("Please login to add items for rent!");
+                    setIsAuthModalOpen(true);
+                    return;
+                  }
+                  setIsAddFormOpen(true);
+                }}
                 className="bg-white text-purple-600 hover:bg-purple-50"
               >
                 <Plus className="size-4 mr-2" />
@@ -765,7 +982,7 @@ export default function App() {
               placeholder="Search for books, calculators, lab equipment..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 w-full bg-white shadow-lg border-2 border-purple-200 focus:border-purple-400"
+              className="pl-10 w-full bg-white shadow-lg border-2 border-purple-200 focus:border-purple-400 text-black placeholder:text-gray-400"
             />
           </motion.div>
 
@@ -850,6 +1067,7 @@ export default function App() {
         onClose={() => setIsModalOpen(false)}
         currentUser={currentUser}
         onBookingComplete={handleBookingComplete}
+        onOpenSubscription={() => setIsSubscriptionOpen(true)}
       />
       <AddObjectForm
         isOpen={isAddFormOpen}
@@ -872,6 +1090,11 @@ export default function App() {
       <DamageReportModal
         isOpen={isDamageReportOpen}
         onClose={() => setIsDamageReportOpen(false)}
+        currentUser={currentUser}
+      />
+      <SubscriptionPlans
+        isOpen={isSubscriptionOpen}
+        onClose={() => setIsSubscriptionOpen(false)}
         currentUser={currentUser}
       />
     </div>

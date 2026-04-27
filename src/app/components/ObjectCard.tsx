@@ -24,6 +24,13 @@ export interface RentalObject {
   available: boolean;
   depositAmount: number;
   rating: number;
+  author?: string;
+  genre?: string;
+  publisher?: string;
+  isbn?: string;
+
+  // ✅ ADDED FIELD FOR QR CODE
+  qrUrl?: string;
 }
 
 interface ObjectCardProps {
@@ -94,9 +101,22 @@ export function ObjectCard({ object, onViewDetails, index }: ObjectCardProps) {
             </div>
           </div>
 
-          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+          <p className="text-sm text-gray-600 mb-2 line-clamp-2">
             {object.description}
           </p>
+
+          {object.category === "books" && object.author && (
+            <div className="mb-2">
+              <p className="text-xs text-purple-600 font-medium">
+                ✍️ {object.author}
+              </p>
+              {object.genre && (
+                <p className="text-xs text-gray-500">
+                  {object.genre}
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="flex items-center justify-between pt-4 border-t">
             <div className="flex items-center gap-1">
